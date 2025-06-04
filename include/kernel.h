@@ -9,6 +9,7 @@ unsigned int getBiosTick();
 
 void printString(char* str);
 void readString(char* buf);
+void setTextColor(int color); 
 void clearScreen();
 
 #endif // __KERNEL_H__

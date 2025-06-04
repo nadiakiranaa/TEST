@@ -1,14 +1,12 @@
 #include "shell.h"
 #include "kernel.h"
 
-int text_color = 0x07;
+// int text_color = 0x07;
 
-void setTextColor(int color) {
-    text_color = color;
-}
+
 
 int main() {
-    clearScreen();
+    clearScreen(0x07);
     shell();
     return 0;
 }
@@ -48,7 +46,8 @@ void clearScreen(int color) {
     for (i = 0; i < 25 * 80; i++) {
         putInMemory(0xB800, i * 2, ' ');
         putInMemory(0xB800, i * 2 + 1, color);
-    }
+    } 
+     interrupt(0x10, 0x0200, 0, 0, 0);
 }
 
 

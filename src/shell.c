@@ -1,15 +1,13 @@
 #include "shell.h"
 #include "kernel.h"
 #include "std_lib.h"
-extern int text_color;
-extern void setTextColor(int color);
+// extern int text_color;
+// extern void setTextColor(int color);
 
-void clearScreen() {
-    int i;
-    for (i = 0; i < 25 * 80; i++) {
-        putInMemory(0xB800, i * 2, ' ');
-        putInMemory(0xB800, i * 2 + 1, text_color);
-    }
+int text_color = 0x07; // default color: white
+
+void setTextColor(int color) {
+    text_color = color;
 }
 
 void printRandomYogurtResponse() {
@@ -24,35 +22,37 @@ void printRandomYogurtResponse() {
     responses[2] = "sygau";
 
     tick = getBiosTick();
-    index = mod(tick ^ 0xA5, count);
-
+    index = mod(getBiosTick(), count);
+    
     printString("gurt> ");
     printString(responses[index]);
     printString("\r\n");
 }
 
-void handleGrandCompany(char *company, char *username) {
-    if (strcmp(company, "maelstrom") == 0) {
+void handleGrandCompany(char *company, char *username, char *host) {
+    int i = 0;
+
+    if (strcmp(company, "maelstrom")) {
         setTextColor(0x0C);  // merah terang
-        clearScreen();
-        strcpy(username, "user@Storm");
-    } else if (strcmp(company, "twinadder") == 0) {
+        clearScreen(text_color);
+        strcpy(host, "@Storm");
+        printString("\r");
+    } else if (strcmp(company, "twinadder")) {
         setTextColor(0x0E);  // kuning terang
-        clearScreen();
-        strcpy(username, "user@Serpent");
-    } else if (strcmp(company, "immortalflames") == 0) {
+        clearScreen(text_color);
+        strcpy(host, "@Serpent");
+    } else if (strcmp(company, "immortalflames")) {
         setTextColor(0x09);  // biru muda
-        clearScreen();
-        strcpy(username, "user@Flame");
-    } else if (strcmp(company, "clear") == 0 || company[0] == '\0') {
-        setTextColor(0x07);  // warna default abu-putih
-        clearScreen();
-        strcpy(username, "user");
-        printString("You are now neutral. The Grand Companies are sad.\n");
+        clearScreen(text_color);
+        // Gunakan strcpy untuk mengganti host
+        strcpy(host, "@Flame");
+    
     } else {
         printString("Error: Unknown Grand Company\n");
     }
 }
+
+
 
 void shell() {
     char buf[128];
@@ -60,42 +60,49 @@ void shell() {
     char arg[2][64];
     char username[64];
     char resultStr[16];
+    char host[64]; // Default host
     int a, b, result;
-
+    strcpy(host, "");
     strcpy(username, "user");
-
+    interrupt(0x10, 0x0200, 0, 0, 0);
     printString("Welcome to EorzeOS!\n");
-
+    printString("\r");
     while (true) {
         printString(username);
+        printString(host);
         printString("> ");
 
         readString(buf);
         parseCommand(buf, cmd, arg);
+        printString("\r");
 
-        if (strcmp(cmd, "yo") == 0) {
+        if (strcmp(cmd, "yo")) {
             printString("gurt\n");
-        } else if (strcmp(cmd, "gurt") == 0) {
+            printString("\r");
+        } else if (strcmp(cmd, "gurt")) {
             printString("yo\n");
-        } else if (strcmp(cmd, "user") == 0) {
+            printString("\r");
+        } else if (strcmp(cmd, "user")) {
             if (arg[0][0] != '\0') {
                 strcpy(username, arg[0]);
                 printString("Username changed to ");
                 printString(username);
                 printString("\n");
+                printString("\r");
             } else {
                 strcpy(username, "user");
                 printString("Username changed to user\n");
+                printString("\r");
             }
-        } else if (strcmp(cmd, "add") == 0 || strcmp(cmd, "sub") == 0 || strcmp(cmd, "mul") == 0 || strcmp(cmd, "div") == 0) {
+        } else if (strcmp(cmd, "add") || strcmp(cmd, "sub") || strcmp(cmd, "mul") || strcmp(cmd, "div")) {
             atoi(arg[0], &a);
             atoi(arg[1], &b);
 
-            if (strcmp(cmd, "add") == 0) {
+            if (strcmp(cmd, "add")) {
                 result = a + b;
-            } else if (strcmp(cmd, "sub") == 0) {
+            } else if (strcmp(cmd, "sub")) {
                 result = a - b;
-            } else if (strcmp(cmd, "mul") == 0) {
+            } else if (strcmp(cmd, "mul")) {
                 result = a * b;
             } else {
                 if (b == 0) {
@@ -108,16 +115,21 @@ void shell() {
             itoa(result, resultStr);
             printString(resultStr);
             printString("\n");
-        } else if (strcmp(cmd, "grandcompany") == 0) {
-            handleGrandCompany(arg[0], username);
-        } else if (strcmp(cmd, "clear") == 0) {
-            clearScreen();
-            setTextColor(0x07);
-            strcpy(username, "user");
-        } else if (strcmp(cmd, "yogurt") == 0) {
+            printString("\r");
+        } else if (strcmp(cmd, "grandcompany")) {
+            handleGrandCompany(arg[0], username, host);
+
+        } else if (strcmp(cmd, "clear")) {
+            setTextColor(0x07);  // warna default abu-putih
+            clearScreen(text_color);
+            strcpy(host, "");
+            printString("\r");
+        } else if (strcmp(cmd, "yogurt")) {
             printRandomYogurtResponse();
+            printString("\r");
         } else {
             printString(buf);
+            printString("\r");
             printString("\n");
         }
     }

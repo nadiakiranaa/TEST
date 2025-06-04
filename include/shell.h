@@ -5,7 +5,7 @@
 
 void shell();
 void parseCommand(char *buf, char *cmd, char arg[2][64]);
-
+void setTextColor(int color);   
 // Tambahkan fungsi bila perlu
 
 #endif // __SHELL_H__

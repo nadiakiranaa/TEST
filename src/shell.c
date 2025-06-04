@@ -48,6 +48,7 @@ void handleGrandCompany(char *company, char *username, char *host) {
         strcpy(host, "@Flame");
     
     } else {
+        
         printString("Error: Unknown Grand Company\n");
     }
 }
